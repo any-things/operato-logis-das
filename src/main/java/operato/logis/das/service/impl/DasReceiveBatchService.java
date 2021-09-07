@@ -26,8 +26,8 @@ import xyz.anythings.sys.util.AnyOrmUtil;
 import xyz.anythings.sys.util.AnyValueUtil;
 import xyz.elidom.dbist.dml.Query;
 import xyz.elidom.dbist.util.StringJoiner;
-import xyz.elidom.exception.server.ElidomRuntimeException;
 import xyz.elidom.sys.SysConstants;
+import xyz.elidom.sys.util.ThrowUtil;
 import xyz.elidom.util.BeanUtil;
 import xyz.elidom.util.ValueUtil;
 
@@ -138,7 +138,6 @@ public class DasReceiveBatchService extends AbstractQueryService {
 				this.startToReceiveData(receipt, item);
 			}
 		}
-		 
 	}
 	
 	/**
@@ -164,7 +163,7 @@ public class DasReceiveBatchService extends AbstractQueryService {
 				item.updateStatusImmediately(LogisConstants.COMMON_STATUS_SKIPPED, null);
 				return receipt;
 			}
-						
+			
 			// 3. BatchReceiptItem 상태 업데이트  - 진행 중
 			item.updateStatusImmediately(LogisConstants.COMMON_STATUS_RUNNING, null);
 			
@@ -192,7 +191,7 @@ public class DasReceiveBatchService extends AbstractQueryService {
 			// 10. 에러 처리
 			selfSvc.handleReceiveError(th, receipt, item);
 		}
-				
+		
 		return receipt;
 	}
 	
@@ -287,7 +286,7 @@ public class DasReceiveBatchService extends AbstractQueryService {
 		String currentStatus = AnyEntityUtil.findItem(batch.getDomainId(), true, String.class, sql, params);
 		
 		if(ValueUtil.isNotEqual(currentStatus, JobBatch.STATUS_WAIT) && ValueUtil.isNotEqual(currentStatus, JobBatch.STATUS_READY)) {
-			throw new ElidomRuntimeException("작업 대기 상태에서만 취소가 가능 합니다.");
+			throw ThrowUtil.newValidationErrorWithNoLog("작업 대기 상태에서만 취소가 가능 합니다.");
 		}
 		
 		// 3. 주문 취소시 데이터 유지 여부에 따라서
@@ -376,7 +375,6 @@ public class DasReceiveBatchService extends AbstractQueryService {
 	private void updateWmfIfToReceiptItems(BatchReceiptItem item,String jobDate) {
 		Map<String,Object> params = ValueUtil.newMap("wcsBatchNo,wmsBatchNo,stageCd,jobSeq,jobDate",
 				item.getWcsBatchNo(),item.getWmsBatchNo(),item.getStageCd(),item.getJobSeq(),jobDate);
- 
 		this.queryManager.executeBySql(this.batchQueryStore.getWmsIfToReceiptUpdateQuery(), params);
 	}
 	
