@@ -298,5 +298,13 @@ public class RtnQueryStore extends AbstractQueryStore {
 	public String getCommonCellSortingQuery() {
 		return this.getQueryByPath("etc/CellSorting");
 	}
-
+	
+	/**
+	 * 셀 별 피킹 현황 리스트를 조회
+	 * 
+	 * @return
+	 */
+	public String getRtnSearchJobStatusByCellQuery() {
+		return this.getQueryByPath("pick/SearchJobStatusByCell");
+	}
 }

@@ -335,4 +335,12 @@ public class DasQueryStore extends AbstractQueryStore {
 		return this.getQueryByPath("etc/CellSorting");
 	}
 
+	/**
+	 * 셀 별 피킹 현황 리스트를 조회
+	 * 
+	 * @return
+	 */
+	public String getDasSearchJobStatusByCellQuery() {
+		return this.getQueryByPath("pick/SearchJobStatusByCell");
+	}
 }

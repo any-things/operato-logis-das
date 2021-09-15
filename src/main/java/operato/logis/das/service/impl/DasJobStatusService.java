@@ -30,6 +30,7 @@ public class DasJobStatusService extends AbstractJobStatusService {
 	protected DasQueryStore dasQueryStore;
 	
 	/**
+	 * TODO Logis 전역 Utility 클래스로 이동 필요
 	 * 스테이션 코드 값이 ALL인 값을 null로 변환하여 리턴
 	 * 
 	 * @param stationCd
@@ -140,6 +141,18 @@ public class DasJobStatusService extends AbstractJobStatusService {
 		this.addBatchConditions(batch, condition);
 		return this.queryManager.selectListBySql(sql, condition, JobInstance.class, 0, 0);
 	}
+	
+	@Override
+	public List<JobInstance> searchJobStatusByCell(JobBatch batch, String stationCd, String cellCd, boolean workingCellOnly) {
+		String sql = this.dasQueryStore.getDasSearchJobStatusByCellQuery();
+		Map<String, Object> params = ValueUtil.newMap("domainId,batchId,equipCd,workingCellOnly", batch.getDomainId(), batch.getId(), batch.getEquipCd(), workingCellOnly);
+		stationCd = this.filterAllStation(stationCd);
+		if(ValueUtil.isNotEmpty(cellCd)) {
+			params.put("cellCd", cellCd);
+		}
+		
+		return this.queryManager.selectListBySql(sql, params, JobInstance.class, 0, 0);
+	}
 
 	@Override
 	public JobInstance findPickingJob(Long domainId, String jobInstanceId) {
@@ -148,5 +161,4 @@ public class DasJobStatusService extends AbstractJobStatusService {
 		List<JobInstance> jobList = this.queryManager.selectListBySql(sql, params, JobInstance.class, 1, 1);
 		return ValueUtil.isEmpty(jobList) ? null : jobList.get(0);
 	}
-
 }

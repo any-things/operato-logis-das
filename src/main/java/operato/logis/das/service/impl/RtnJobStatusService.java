@@ -29,6 +29,29 @@ public class RtnJobStatusService extends AbstractJobStatusService {
 	@Autowired
 	protected RtnQueryStore rtnQueryStore;
 	
+	/**
+	 * 스테이션 코드 값이 ALL인 값을 null로 변환하여 리턴
+	 * 
+	 * @param stationCd
+	 * @return
+	 */
+	private String filterAllStation(String stationCd) {
+		return ValueUtil.isEqualIgnoreCase(stationCd, LogisConstants.ALL_CAP_STRING) ? null : stationCd;
+	}
+	
+	/**
+	 * condition에 스테이션 코드 값이 있고 값이 ALL이면 condition에서 제거
+	 *  
+	 * @param condition
+	 */
+	/*private void filterAllStation(Map<String, Object> condition) {
+		if(condition != null && condition.containsKey("stationCd")) {
+			if(ValueUtil.isEqualIgnoreCase(LogisConstants.ALL_CAP_STRING, condition.get("stationCd").toString())) {
+				condition.remove("stationCd");
+			}
+		}
+	}*/
+	
 	@Override
 	public List<JobInput> searchInputList(JobBatch batch, String equipCd, String stationCd, String selectedInputId) {
 		// TODO Auto-generated method stub
@@ -89,4 +112,15 @@ public class RtnJobStatusService extends AbstractJobStatusService {
 		return ValueUtil.isEmpty(jobList) ? null : jobList.get(0);
 	}
 
+	@Override
+	public List<JobInstance> searchJobStatusByCell(JobBatch batch, String stationCd, String cellCd, boolean workingCellOnly) {
+		String sql = this.rtnQueryStore.getRtnSearchJobStatusByCellQuery();
+		Map<String, Object> params = ValueUtil.newMap("domainId,batchId,equipCd,workingCellOnly", batch.getDomainId(), batch.getId(), batch.getEquipCd(), workingCellOnly);
+		stationCd = this.filterAllStation(stationCd);
+		if(ValueUtil.isNotEmpty(cellCd)) {
+			params.put("cellCd", cellCd);
+		}
+		
+		return this.queryManager.selectListBySql(sql, params, JobInstance.class, 0, 0);
+	}
 }
